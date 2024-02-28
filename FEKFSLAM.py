@@ -83,8 +83,23 @@ class FEKFSLAM(FEKFMBL):
         assert znp.size > 0, "AddNewFeatures: znp is empty"
         
         ## To be completed by the student
+        xk_plus = xk
+        Pk_plus = Pk
+        for i in range(len(znp)):
+            xkf = self.g(xk,znp[i])
+            xk_plus = np.block([xk_plus, xkf]) 
+            
+            Jgx = self.Jgx(xk,znp[i])
+            Jgv = self.Jgv(xk,znp[i])
+            NPBTF = Pk[:,0:self.xB_dim].T @ Jgx
+            NPBF = Jgx @ Pk[:,0:self.xB_dim]
+            JPJ_JRJ = (Jgx @ Pk[0:self.xB_dim,0:self.xB_dim] @ Jgx.T) + (Jgv @ Rnp[i:i+self.zfi_dim,i:+self.zfi_dim] @ Jgv.T)
 
-        # return xk_plus, Pk_plus
+            top_ele  = np.block([Pk_plus, NPBTF])
+            btm_ele = np.block([NPBF, JPJ_JRJ])
+            Pk_plus = np.block([top_ele, btm_ele])
+        
+        return xk_plus, Pk_plus
 
     def Prediction(self, uk, Qk, xk_1, Pk_1):
         """
