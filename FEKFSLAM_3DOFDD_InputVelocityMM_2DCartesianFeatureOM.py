@@ -45,6 +45,27 @@ if __name__ == '__main__':
 
     P0 = np.zeros((3, 3))
     usk=np.array([[0.5, 0, 0.03]]).T
-    auv.LocalizationLoop(x0, P0, usk)
+    print("x0: ", x0)
+    print("P0: ", P0)
+    f1 = M[0]
+    f2 = M[1]
+    print("f1: ", f1.shape)
+    x0 = np.block([[x0], [f1]])
+    print("x0: ", x0)
+    # P0_hstack = [P0, )]
+    P0_left = np.zeros((P0.shape[0], f1.shape[0]))
+    P0_hstack = np.block([P0, P0_left])
+
+    P0_bottom = np.zeros((f1.shape[0], P0.shape[1]))
+    P0_bottom = np.block([P0_bottom, np.zeros((f1.shape[0], f1.shape[0]))])
+
+    print("P0_hstack: ", P0_hstack.shape)
+    print("P0_bottom: ", P0_bottom.shape)
+    P0 = np.block([[P0_hstack], [P0_bottom]])
+    print("________________")
+    print("P0: ", P0)
+    print("P0.shape:", P0.shape)
+    
+    # auv.LocalizationLoop(x0, P0, usk)
 
     exit(0)
