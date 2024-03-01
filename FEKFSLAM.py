@@ -85,12 +85,21 @@ class FEKFSLAM(FEKFMBL):
         ## To be completed by the student
         xk_plus = xk
         Pk_plus = Pk
+
+        print("znp len: ", len(znp))
         for i in range(len(znp)):
-            xkf = self.g(xk,znp[i])
-            xk_plus = np.block([[xk_plus], [xkf]]) 
-            
+            NxFi = self.g(xk,znp[i])
+            xk_plus = np.block([[xk_plus], [NxFi]]) 
+
             Jgx = self.Jgx(xk,znp[i])
             Jgv = self.Jgv(xk,znp[i])
+
+            print("Jgx: ", Jgx.shape)
+            print("Jgv: ", Jgv.shape)
+            print("XB_DIM: ", self.xB_dim)
+            print("Pk: ", Pk.shape)
+
+            print("Pk: ", Pk[:,0:self.xB_dim].T)
             NPBTF = Pk[:,0:self.xB_dim].T @ Jgx
             NPBF = Jgx @ Pk[:,0:self.xB_dim]
             JPJ_JRJ = (Jgx @ Pk[0:self.xB_dim,0:self.xB_dim] @ Jgx.T) + (Jgv @ Rnp[i:i+self.zfi_dim,i:+self.zfi_dim] @ Jgv.T)

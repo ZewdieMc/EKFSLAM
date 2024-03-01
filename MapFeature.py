@@ -72,6 +72,7 @@ class MapFeature:
         # Defaut: store representation:         Cartersion
         #         observation representation:   Cartersion
         # transformation matrix is the Identity matrix
+        print("v", v)
         transform_matrix = np.diag(np.ones(np.shape(v)[0]))
         # Compute a vector on the observation representation
         Storage_representation = transform_matrix @ v
@@ -284,8 +285,8 @@ class MapFeature:
         xBpose_dim = 3
         # Get Pose vector from the filter state
         NxB = xk[0:xBpose_dim,0].reshape((xBpose_dim,1))
-
-        NxFj = (self.o2s(BxFj)).boxplus(NxB)
+        
+        NxFj = CartesianFeature((self.o2s(BxFj))).boxplus(NxB)
         return NxFj
 
     def Jgx(self, xk, BxFj):  # Jacobian wrt xk of the inverse sensor model for a single feature observation
@@ -314,7 +315,6 @@ class MapFeature:
         print("shape of xk", xB_dim)
         # Get Pose vector from the filter state
         NxB = xk[0:xBpose_dim,0].reshape((xBpose_dim,1))
-        a = CartesianFeature(self.o2s(BxFj)).J_1boxplus(NxB)
         J = np.block([CartesianFeature(self.o2s(BxFj)).J_1boxplus(NxB), np.zeros((xF_dim, xB_dim-xF_dim))])
         return J
 
@@ -333,11 +333,12 @@ class MapFeature:
         """
         # TODO: To be implemented by the student
         # Get dimensionality of the pose
+        # BxFj = FeatBxFj
         xBpose_dim = 3
         # Get Pose vector from the filter state
         NxB = xk[0:xBpose_dim,0].reshape((xBpose_dim,1))
         
-        J = CartesianFeature.J_2boxplus(self.o2s(BxFj), NxB) @ self.J_o2s(BxFj)
+        J = CartesianFeature(self.o2s(BxFj)).J_2boxplus(NxB) @ self.J_o2s(BxFj)
         return J
 
 
