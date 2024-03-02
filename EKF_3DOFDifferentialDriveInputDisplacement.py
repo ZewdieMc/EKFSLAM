@@ -40,10 +40,10 @@ class EKF_3DOFDifferentialDriveInputDisplacement(GFLocalization, DR_3DOFDifferen
 
         return xk_bar
 
-    def Jfx(self, xk_1):
+    def Jfx(self, xk_1,  uk):
         # TODO: To be completed by the student
         xk_1 = xk_1.reshape(3, 1)  # Reshape xk_1 to have shape (3, 1)
-        J = Pose3D(xk_1).J_1oplus(self.uk)
+        J = Pose3D(xk_1).J_1oplus(uk)
 
         return J
 
