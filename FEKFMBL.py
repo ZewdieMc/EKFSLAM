@@ -5,7 +5,7 @@ from EKF import *
 import math
 from blockarray import *
 
-class FEKFMBL(GFLocalization, MapFeature):
+class FEKFMBL(GFLocalization,EKF, MapFeature):
     """
     Feature Extended Kalman Filter Map based Localization class. Inherits from :class:`GFLocalization.GFLocalization` and :class:`MapFeature.MapFeature`.
     The first one provides the basic functionality of a localization algorithm, while the second one provides the basic functionality required to use features.
