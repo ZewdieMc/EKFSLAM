@@ -115,16 +115,16 @@ class GFLocalization(Localization,GaussianFilter):
 
         for self.k in range(self.kSteps):
             xsk = self.robot.fs(xsk_1, usk)  # Simulate the robot motion
-            xk, Pk, xk_bar, zk, Rk = self.Localize(xk_1, Pk_1)  # Localize the robot
+            xk, Pk = self.Localize(xk_1, Pk_1)  # Localize the robot
             xsk_1 = xsk  # current state becomes previous state for next iteration
             xk_1 = xk
             Pk_1 = Pk
             
             # Log data
-            self.Log(xsk, xk, Pk, xk_bar, zk)
+            # self.Log(xsk, xk, Pk, xk_bar, zk)
             
             # plot the estimated trajectory
-            self.PlotUncertainty(zk, Rk)
+            # self.PlotUncertainty(zk, Rk)
 
             # Add to save figure to write the report
             if self.k % 60 == 0:
