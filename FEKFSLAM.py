@@ -80,7 +80,7 @@ class FEKFSLAM(FEKFMBL):
         :return: [xk_plus, Pk_plus] state vector mean and covariance after adding the new features
         """
 
-        assert znp.size > 0, "AddNewFeatures: znp is empty"
+        assert np.array(znp).size > 0, "AddNewFeatures: znp is empty"
         
         ## To be completed by the student
         xk_plus = xk
@@ -206,11 +206,9 @@ class FEKFSLAM(FEKFMBL):
         
         #Robot pose
         xBk_1 = xk_1[0:self.xB_dim]
-        print("xBk_1 shape: ", xBk_1.shape)
         
         #Feature pose
         xFk_1 = xk_1[self.xB_dim:]
-        print("num of features: ", len(xFk_1)/self.xF_dim)
 
         #Prediction
         XBk = self.f(xBk_1, uk).reshape(self.xB_dim,1)
@@ -234,9 +232,8 @@ class FEKFSLAM(FEKFMBL):
 
         Pk_bar = np.block([[top_left, top_right], [bottom_left, bottom_right]])
 
-        print("Pk_bar shape: ", Pk_bar.shape)
-        print("xk_bar shape: ", xk_bar.shape)
-        
+        #
+        print("Pk_bar: ", Pk_bar)        
         return xk_bar, Pk_bar
 
     def Localize(self, xk_1, Pk_1):
@@ -251,35 +248,41 @@ class FEKFSLAM(FEKFMBL):
         :return: [xk, Pk] state vector mean and covariance at time step k
         """
 
-        ## To be completed by the student
+        ## TODO To be completed by the student
 
         # Get input to prediction step
         uk, Qk = self.GetInput()
+
         # Prediction step
         xk_bar, Pk_bar = self.Prediction(uk, Qk, xk_1, Pk_1)
+
+        # Get measurement
+        zm, Rm, Hm, Vm = self.GetMeasurements()
+        zf, Rf, Hf, Vf = self.GetFeatures()
+
+        #Data association
+        Hp = self.DataAssociation(xk_bar, Pk_bar, zf, Rf)
+        
+        # Stack measurements and features
+        [zk, Rk, Hk, Vk, znp, Rnp] = self.StackMeasurementsAndFeatures(xk_bar, zm, Rm, Hm, Vm, zf, Rf, Hp)
+
+        # Update step
+        xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
+        # xk, Pk = self.AddNewFeatures(xk, Pk, znp, Rnp)#! comment or uncomment this line to test w or w\ the AddNewFeatures
+
         self.xk_bar = xk_bar
         self.Pk_bar = Pk_bar
-        
-        self.xk = xk_bar
-        self.Pk = Pk_bar
-
-        # Get measurement, Heading of the robot
-        zm, Rm, Hm, Vm = [], [], [], []
-
-        # Get the non-paired feature observations
-        zf, Rf, znp, Rnp = [], [], [], []
-        # Update step
-
+        self.xk = xk
+        self.Pk = Pk
 
         # Use the variable names zm, zf, Rf, znp, Rnp so that the plotting functions work
         #self.Log(self.robot.xsk, self._GetRobotPose(self.xk), self._GetRobotPoseCovariance(self.Pk),
          #       self._GetRobotPose(self.xk_bar), zm)  # log the results for plotting
         self.Log(self.robot.xsk, self.GetRobotPose(self.xk_bar), self.GetRobotPoseCovariance(self.Pk_bar), self.GetRobotPose(self.xk_bar), zm)  # log the results for plotting
 
-        self.PlotUncertainty(zf, Rf, znp, Rnp)
+        self.PlotUncertainty(Feature(zf), Rf, znp, Rnp)
         # return self.xk, self.Pk
-        return self.xk_bar, self.Pk_bar
-
+        return xk, Pk, xk_bar, zk, Rk, znp, Rnp
     def PlotMappedFeaturesUncertainty(self):
         """
         This method plots the uncertainty of the mapped features. It plots the uncertainty ellipses of the mapped
