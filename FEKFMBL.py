@@ -222,7 +222,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         # Update step
         xk, Pk          = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
 
-        return xk, Pk, xk_bar, zk, Rk
+        return xk, Pk, xk_bar, zk, Rk, znp, Rnp
 
     def StackMeasurementsAndFeatures(self, xk, zm, Rm, Hm, Vm, zf, Rf, H):
         """
