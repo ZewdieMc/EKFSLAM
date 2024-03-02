@@ -43,17 +43,20 @@ if __name__ == '__main__':
 
     auv = FEKFSLAM_3DOFDD_InputVelocityMM_2DCartesianFeatureOM([], alpha, kSteps, robot)
 
+    # initial state and covariance
+
     P0 = np.zeros((3, 3))
     usk=np.array([[0.5, 0.03]]).T
-    print("________BEFORE FEATURE________")
-    print("x0:\n", x0)
-    print("P0:\n", P0)
+    # print("________BEFORE FEATURE________")
+    # print("x0:\n", x0)
+    # print("P0:\n", P0)
 
     f1 = M[0]
     f2 = M[1]
+    f3 = M[2]
 
-    x0 = np.block([[x0], [f1], [f2]])
-    print("________AFTER FEATURE________")
+    x0 = np.block([[x0], [f1], [f2], [f3]])
+    # print("________AFTER FEATURE________")
 
     print("x0:\n", x0)
     P0_right = np.zeros((auv.xB_dim, x0.shape[0] - auv.xB_dim))
@@ -65,7 +68,7 @@ if __name__ == '__main__':
     P0 = np.block([[P0_hstack], [P0_bottom]])
     print("P0:\n", P0)
         
-    # print("_________TEST GetFeatures_____________")
+    # print("_________TEST AddNewFeatures_____________")
     # znp = np.array([f1, f2])
     # Rnp = np.zeros((4, 4))
     # xk_plus, Pk_plus = auv.AddNewFeatures(x0, P0, znp, Rnp)
@@ -78,10 +81,11 @@ if __name__ == '__main__':
     # print("uk:\n", uk)
     # print("Qk:\n", Qk)
     # print("________________")
+    # uk, Qk = auv.GetInput()
 
-    # x_bar, P_bar = auv.Prediction(uk, Qk, x0, P0)#! Look for GetInput to get uk and Qk
+    # x_bar, P_bar = auv.Prediction(uk, Qk, x0, P0)
     # print("_______AFTER PREDICTION_________")
-    # print("x_bar shape: ", x_bar.shape)
+    # print("x_bar shape: ", x_bar)
     # print("P_bar shape: ", P_bar)
 
     auv.LocalizationLoop(x0, P0, usk)
