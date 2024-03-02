@@ -90,6 +90,7 @@ class FEKFSLAM(FEKFMBL):
         for i in range(len(znp)):
             NxFi = self.g(xk,znp[i])
             xk_plus = np.block([[xk_plus], [NxFi]]) 
+            self.nf += 1
 
             Jgx = self.Jgx(xk,znp[i])
             Jgv = self.Jgv(xk,znp[i])
@@ -202,8 +203,41 @@ class FEKFSLAM(FEKFMBL):
         """
 
        ## To be completed by the student
+        
+        #Robot pose
+        xBk_1 = xk_1[0:self.xB_dim]
+        print("xBk_1 shape: ", xBk_1.shape)
+        
+        #Feature pose
+        xFk_1 = xk_1[self.xB_dim:]
+        print("num of features: ", len(xFk_1)/self.xF_dim)
 
-        # return xk_bar, Pk_bar
+        #Prediction
+        XBk = self.f(xBk_1, uk).reshape(self.xB_dim,1)
+
+        #predicted state vector mean
+        xk_bar = np.block([[XBk], [xFk_1]])
+
+        #Jacobian
+        Jfx = self.Jfx(xBk_1, uk)
+        Jfw = self.Jfw(xBk_1)
+
+        #Covariance
+        robot_cov = Jfx @ Pk_1[0:self.xB_dim,0:self.xB_dim] @ Jfx.T
+        noise_cov = Jfw @ Qk @ Jfw.T
+
+        top_left = robot_cov + noise_cov
+        bottom_left = Pk_1[self.xB_dim:, 0:self.xB_dim] @ Jfx.T
+
+        top_right = Jfx @ Pk_1[:self.xB_dim, self.xB_dim:]
+        bottom_right = Pk_1[self.xB_dim:, self.xB_dim:]
+
+        Pk_bar = np.block([[top_left, top_right], [bottom_left, bottom_right]])
+
+        print("Pk_bar shape: ", Pk_bar.shape)
+        print("xk_bar shape: ", xk_bar.shape)
+        
+        return xk_bar, Pk_bar
 
     def Localize(self, xk_1, Pk_1):
         """
@@ -219,12 +253,32 @@ class FEKFSLAM(FEKFMBL):
 
         ## To be completed by the student
 
+        # Get input to prediction step
+        uk, Qk = self.GetInput()
+        # Prediction step
+        xk_bar, Pk_bar = self.Prediction(uk, Qk, xk_1, Pk_1)
+        self.xk_bar = xk_bar
+        self.Pk_bar = Pk_bar
+        
+        self.xk = xk_bar
+        self.Pk = Pk_bar
+
+        # Get measurement, Heading of the robot
+        zm, Rm, Hm, Vm = [], [], [], []
+
+        # Get the non-paired feature observations
+        zf, Rf, znp, Rnp = [], [], [], []
+        # Update step
+
+
         # Use the variable names zm, zf, Rf, znp, Rnp so that the plotting functions work
-        self.Log(self.robot.xsk, self._GetRobotPose(self.xk), self._GetRobotPoseCovariance(self.Pk),
-                 self._GetRobotPose(self.xk_bar), zm)  # log the results for plotting
+        #self.Log(self.robot.xsk, self._GetRobotPose(self.xk), self._GetRobotPoseCovariance(self.Pk),
+         #       self._GetRobotPose(self.xk_bar), zm)  # log the results for plotting
+        self.Log(self.robot.xsk, self.GetRobotPose(self.xk_bar), self.GetRobotPoseCovariance(self.Pk_bar), self.GetRobotPose(self.xk_bar), zm)  # log the results for plotting
 
         self.PlotUncertainty(zf, Rf, znp, Rnp)
-        return self.xk, self.Pk
+        # return self.xk, self.Pk
+        return self.xk_bar, self.Pk_bar
 
     def PlotMappedFeaturesUncertainty(self):
         """
