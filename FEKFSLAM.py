@@ -268,6 +268,7 @@ class FEKFSLAM(FEKFMBL):
 
         # Update step
         xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
+        # if len(znp) > 0: #! uncomment this
         # xk, Pk = self.AddNewFeatures(xk, Pk, znp, Rnp)#! comment or uncomment this line to test w or w\ the AddNewFeatures
 
         self.xk_bar = xk_bar

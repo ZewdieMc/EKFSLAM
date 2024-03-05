@@ -182,7 +182,9 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
 
         hF = [] 
         PF = []
-        for i in range(self.nf):
+        xF = xk[self.xBpose_dim:]
+
+        for i in range(0, len(xF), self.xF_dim):
             hF_i = self.hfj(xk, i)
             PF_i = self.Jhfjx(xk, i) @ Pk @ self.Jhfjx(xk, i).T
 
