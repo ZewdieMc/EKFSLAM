@@ -30,7 +30,7 @@ if __name__ == '__main__':
            CartesianFeature(np.array([[40,-40]]).T)]  # feature map. Position of 2 point features in the world frame.
 
     xs0 = np.zeros((6, 1))
-    kSteps = 5000
+    kSteps = 2000
     alpha = 0.99
 
     index = [IndexStruct("x", 0, None), IndexStruct("y", 1, None), IndexStruct("yaw", 2, 1)]
@@ -54,8 +54,9 @@ if __name__ == '__main__':
     f1 = M[0]
     f2 = M[1]
     f3 = M[2]
+    f4 = M[3]
 
-    x0 = np.block([[x0], [f1], [f2], [f3]])
+    x0 = np.block([[x0], [f1], [f2], [f3], [f4]])
     # print("________AFTER FEATURE________")
 
     print("x0:\n", x0)
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     P0_hstack = np.block([P0, P0_right])
 
     P0_left = np.zeros((x0.shape[0]-auv.xB_dim, auv.xB_dim))
-    P0_bottom = np.block([P0_left, np.zeros((x0.shape[0] - auv.xB_dim, x0.shape[0] - auv.xB_dim))])
+    P0_bottom = np.block([P0_left, np.eye(x0.shape[0] - auv.xB_dim)*0.03])#np.zeros((x0.shape[0] - auv.xB_dim, x0.shape[0] - auv.xB_dim))
 
     P0 = np.block([[P0_hstack], [P0_bottom]])
     print("P0:\n", P0)

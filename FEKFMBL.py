@@ -33,7 +33,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         self.zfi_dim = self.s2o(self.Feature.feature).shape[0]  # dimensionality of a single feature observation
 
         self.M = M  # Feature Based Map
-        self.nf = len(M)  # number of features
+        # self.nf = len(M)  # number of features
         self.alpha = alpha  # Chi2 tail probability - Confidence interval 95%
         self.plt_zf_ellipse = []  # used for plotting the robot ellipse
         self.plt_zf_line = []  # used for plotting the line towards the robot ellipse
@@ -69,14 +69,17 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             hm = self.hm(xk)
         else:
             hm = np.zeros((0,1))
-
+        print("H in h: ", self.H)
         # Get features
         if self.featureData == True:
             index_mapping = []
-            for i in range(len(self.M)):
+            for i in range(len(self.H)):
+                print("self.H[i]: ", self.H[i])
                 if self.H[i] != 0:
                     index_mapping.append(self.H[i]-1)
+            print("index_mapping: ", index_mapping)
             hf = self.hf(xk, index_mapping)
+            
         else:
             hf = np.zeros((0,1))
 
@@ -84,6 +87,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         h_mf = np.block([[hm], [hf]])
         if len(h_mf) == 10:
             a = 1
+        print("h_mf: ", h_mf.shape)
         return h_mf
 
     def hm(self,xk):
@@ -182,16 +186,17 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
 
         hF = [] 
         PF = []
-        xF = xk[self.xBpose_dim:]
+        xF = xk[self.xBpose_dim:] # Extract the feature part of the state vector
 
-        for i in range(0, len(xF), self.xF_dim):
-            hF_i = self.hfj(xk, i)
+        for i in range(0, len(xF), self.xF_dim): 
+            hF_i = self.hfj(xk, i) # Compute the expected feature observation
             PF_i = self.Jhfjx(xk, i) @ Pk @ self.Jhfjx(xk, i).T
 
             hF.append(hF_i)
             PF.append(PF_i)
         H = self.ICNN(hF, PF, zf, Rf)
         self.H = H
+        print("H: in data assocication ", H)
         return H
     
     def Localize(self, xk_1, Pk_1):
@@ -365,7 +370,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
 
         # Plot Expected Feature Observation Ellipses
         for Fj in range(self.nf):   # for all map features
-            h_Fj = self.Feature(self.hfj(self.xk, Fj)) # expected feature observation in the B-Frame in the observation space
+            h_Fj = self.Feature(self.hfj(self.xk, 2*Fj)) # expected feature observation in the B-Frame in the observation space
             J = self.Jhfjx(self.xk, Fj)
             P_h_Fj = J @ self.Pk @ J.T # expected feature observation covariance in the B-Frame in the observation space
 

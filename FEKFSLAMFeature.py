@@ -35,11 +35,11 @@ class FEKFSLAMFeature(MapFeature):
         :return: expected observation of the feature :math:`^Nx_{F_j}`
         """
         ## To be completed by the student
-        NxB = xk_bar[0:3].reshape(3,1)
-        NxFj = xk_bar[3+2*Fj:3+2*Fj+2]
-        NxFj = Feature(NxFj.reshape(2,1))
-        NxB_inv = Pose3D(NxB).ominus()
 
+        NxB = xk_bar[0:3].reshape(3,1)
+        NxFj = xk_bar[3+Fj:3+Fj+2]
+        NxFj = CartesianFeature(NxFj.reshape(2,1))
+        NxB_inv = Pose3D(NxB).ominus()
         zFi = self.s2o(NxFj.boxplus(NxB_inv))
         return zFi
 
@@ -75,20 +75,22 @@ class FEKFSLAMFeature(MapFeature):
 
         ## !To be completed by the student
         NxB = xk[0:3].reshape(3,1)
-        NxFj = xk[3+2*Fj:3+2*Fj+2]
-
-        NxFj = Feature(NxFj.reshape(2,1))
+        NxFj = xk[3+Fj:3+Fj+2]
+        NxFj = CartesianFeature(NxFj.reshape(2,1))
 
         NxB_inv = Pose3D(NxB).ominus()
 
-        Js2o = self.Js2o(NxFj.boxplus(NxB_inv))
-        J1boxplus = NxFj.J_1boxplus(NxB)
-        J2boxplus = NxFj.J_2boxplus(NxB)
-
+        Js2o = self.J_s2o(NxFj.boxplus(NxB_inv))
+        J1boxplus = NxFj.J_1boxplus(NxB_inv)
+        J2boxplus = NxFj.J_2boxplus(NxB_inv)
         
 
-
-        #return ...
+        jhfjx = np.zeros((2, len(xk)))
+        jhfjx[0:2, 0:3] = Js2o @ J1boxplus @ NxB_inv.J_ominus()
+        jhfjx[0:2, 3+Fj:3+Fj+2] = Js2o @ J2boxplus
+        print("Jhfjx: ", jhfjx)
+        print("Fj: ", Fj)
+        return jhfjx
 
 class FEKFSLAM2DCartesianFeature(FEKFSLAMFeature, Cartesian2DMapFeature):
     """

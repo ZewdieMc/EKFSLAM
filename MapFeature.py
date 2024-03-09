@@ -72,7 +72,6 @@ class MapFeature:
         # Defaut: store representation:         Cartersion
         #         observation representation:   Cartersion
         # transformation matrix is the Identity matrix
-        print("v", v)
         transform_matrix = np.diag(np.ones(np.shape(v)[0]))
         # Compute a vector on the observation representation
         Storage_representation = transform_matrix @ v
@@ -89,6 +88,7 @@ class MapFeature:
         :return: Jacobian of the conversion function from the storage representation to the observation representation
         """
         # TODO: To be implemented by the student
+        # print(v.shape)
         J = np.diag(np.ones(np.shape(v)[0]))
         return J
 

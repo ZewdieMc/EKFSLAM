@@ -219,7 +219,7 @@ class FEKFSLAM(FEKFMBL):
         #Jacobian
         Jfx = self.Jfx(xBk_1, uk)
         Jfw = self.Jfw(xBk_1)
-
+        
         #Covariance
         robot_cov = Jfx @ Pk_1[0:self.xB_dim,0:self.xB_dim] @ Jfx.T
         noise_cov = Jfw @ Qk @ Jfw.T
@@ -231,9 +231,7 @@ class FEKFSLAM(FEKFMBL):
         bottom_right = Pk_1[self.xB_dim:, self.xB_dim:]
 
         Pk_bar = np.block([[top_left, top_right], [bottom_left, bottom_right]])
-
         #
-        print("Pk_bar: ", Pk_bar)        
         return xk_bar, Pk_bar
 
     def Localize(self, xk_1, Pk_1):
@@ -249,6 +247,7 @@ class FEKFSLAM(FEKFMBL):
         """
 
         ## TODO To be completed by the student
+        self.nf = int(len(xk_1[3:]) / 2)
 
         # Get input to prediction step
         uk, Qk = self.GetInput()
@@ -262,10 +261,10 @@ class FEKFSLAM(FEKFMBL):
 
         #Data association
         Hp = self.DataAssociation(xk_bar, Pk_bar, zf, Rf)
-        
+
         # Stack measurements and features
         [zk, Rk, Hk, Vk, znp, Rnp] = self.StackMeasurementsAndFeatures(xk_bar, zm, Rm, Hm, Vm, zf, Rf, Hp)
-
+    
         # Update step
         xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
         # if len(znp) > 0: #! uncomment this
