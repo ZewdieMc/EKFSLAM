@@ -42,11 +42,11 @@ observation contained in the observation vector $z_f=[z_{f_1}^T~\cdots~z_{f_i}^T
         ## To be completed by the student
         NxB = xk_bar[0:3].reshape(3,1)
         NxFj = xk_bar[3+2*Fj:3+2*Fj+2]
-        print("xbar: ", xk_bar)
-        print("Index", 3+2*Fj, ":", 3+2*Fj+2)
+        #print("xbar: ", xk_bar)
+        #print("Index", 3+2*Fj, ":", 3+2*Fj+2)
         NxFj = CartesianFeature(NxFj.reshape(2,1))
         NxB_inv = Pose3D(NxB).ominus()
-        print(NxFj.shape)
+        #print(NxFj.shape)
         zFi = self.s2o(NxFj.boxplus(NxB_inv))
         return zFi
 ```
@@ -114,7 +114,7 @@ $$
 
         jhfjx = np.zeros((2, len(xk)))
         jhfjx[0:2, 0:3] = Js2o @ J1boxplus @ NxB_inv.J_ominus()
-        print("index: ", 3+2*Fj)
+        #print("index: ", 3+2*Fj)
         jhfjx[0:2, 3+2*Fj:3+2*Fj+2] = Js2o @ J2boxplus
 
         return jhfjx

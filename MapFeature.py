@@ -73,9 +73,9 @@ class MapFeature:
         #         observation representation:   Cartersion
         # transformation matrix is the Identity matrix
         transform_matrix = np.diag(np.ones(np.shape(v)[0]))
+        
         # Compute a vector on the observation representation
         Storage_representation = transform_matrix @ v
-
         return Storage_representation
 
     def J_s2o(self, v):
@@ -88,7 +88,7 @@ class MapFeature:
         :return: Jacobian of the conversion function from the storage representation to the observation representation
         """
         # TODO: To be implemented by the student
-        # print(v.shape)
+        # #print(v.shape)
         J = np.diag(np.ones(np.shape(v)[0]))
         return J
 
@@ -311,11 +311,12 @@ class MapFeature:
         xBpose_dim = 3
 
         xF_dim = np.shape(BxFj)[0]
-        print("shape of BxFj", xF_dim)
-        print("shape of xk", xB_dim)
+        #print("shape of BxFj", xF_dim)
+        #print("shape of xk", xB_dim)
         # Get Pose vector from the filter state
-        NxB = xk[0:xBpose_dim,0].reshape((xBpose_dim,1))
-        J = np.block([CartesianFeature(self.o2s(BxFj)).J_1boxplus(NxB), np.zeros((xF_dim, xB_dim-xF_dim))])
+        NxB = Pose3D(xk[0:xBpose_dim,0].reshape((xBpose_dim,1)))
+        print(CartesianFeature(self.o2s(BxFj)).J_1boxplus(NxB)@ self.J_o2s(NxB))
+        J = CartesianFeature(self.o2s(BxFj)).J_1boxplus(NxB) @ self.J_o2s(NxB)
         return J
 
     def Jgv(self, xk, BxFj):

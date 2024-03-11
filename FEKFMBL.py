@@ -69,15 +69,15 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             hm = self.hm(xk)
         else:
             hm = np.zeros((0,1))
-        print("H in h: ", self.H)
+        #print("H in h: ", self.H)
         # Get features
         if self.featureData == True:
             index_mapping = []
             for i in range(len(self.H)):
-                print("self.H[i]: ", self.H[i])
+                #print("self.H[i]: ", self.H[i])
                 if self.H[i] != 0:
-                    index_mapping.append(self.H[i]-1)
-            print("index_mapping: ", index_mapping)
+                    index_mapping.append((self.H[i]-1)*self.xF_dim)
+            #print("index_mapping: ", index_mapping)
             hf = self.hf(xk, index_mapping)
             
         else:
@@ -87,7 +87,8 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         h_mf = np.block([[hm], [hf]])
         if len(h_mf) == 10:
             a = 1
-        print("h_mf: ", h_mf.shape)
+        print("h_mf: ", h_mf)
+        print("xk: ",xk)
         return h_mf
 
     def hm(self,xk):
@@ -160,6 +161,8 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                     nearest = i+1
                     D2_min = D2_ij
             Hp.append(nearest)
+
+        print(Hp)
         return Hp
 
     def DataAssociation(self, xk, Pk, zf, Rf):
@@ -188,7 +191,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         PF = []
         xF = xk[self.xBpose_dim:] # Extract the feature part of the state vector
 
-        for i in range(0, len(xF), self.xF_dim): 
+        for i in range(0, len(xF), self.xF_dim):
             hF_i = self.hfj(xk, i) # Compute the expected feature observation
             PF_i = self.Jhfjx(xk, i) @ Pk @ self.Jhfjx(xk, i).T
 
@@ -196,7 +199,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             PF.append(PF_i)
         H = self.ICNN(hF, PF, zf, Rf)
         self.H = H
-        print("H: in data assocication ", H)
+        #print("H: in data assocication ", H)
         return H
     
     def Localize(self, xk_1, Pk_1):
@@ -286,15 +289,17 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         # TODO: To be completed by the student
 
         zp  = []
-        znp = []
-        Rnp = []
+        znp = np.zeros((0,1))
+        Rnp = np.zeros((0,0))
 
         if len(H) > 0:
             for ii in range(0,len(H)):
                 if H[ii] != 0:
                     zp = zf[ii]
                     Rp = Rf[ii]
-                    Hp = self.Jhfjx(xk, ii)
+                    Fj = (H[ii] - 1) * self.xF_dim
+                    print("Fj: {}".format(Fj))
+                    Hp = self.Jhfjx(xk, Fj)
                     Vp = np.diag(np.ones(self.xF_dim))
                     break
         else:
@@ -312,10 +317,17 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                 zp = np.block([[zp], [zf[i]]])
                 # Add noises measurement of the feature (Noise are independent)
                 Rp = scipy.linalg.block_diag(Rp, Rf[i])
-
-                Hp = np.block([[Hp], [self.Jhfjx(xk, j-1)]])
+                Fj = (j - 1) * self.xF_dim
+                print("Fj: {}".format(Fj))
+                Hp = np.block([[Hp], [self.Jhfjx(xk, Fj)]])
 
                 Vp = scipy.linalg.block_diag(Vp, np.diag(np.ones(self.xF_dim)))
+            else:
+                # Add feature measurement
+                znp = np.block([[znp], [zf[i]]])
+                # Add noises measurement of the feature (Noise are independent)
+                Rnp = scipy.linalg.block_diag(Rp, Rf[i])
+
 
         if len(zp) == 10:
             a = 1
@@ -358,7 +370,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                                  [self.robot.xsk[1], NxF_Plot[1]], color+'-.')
             self.plt_zf_ellipse.append(plt_ellipse)
             self.plt_zf_line.append(plt_line)
-            #for j in range(len(self.M)): print("M[",j,"]=", self.M[j].ToCartesian().T)
+            #for j in range(len(self.M)): #print("M[",j,"]=", self.M[j].ToCartesian().T)
 
     def PlotExpectedFeaturesObservationsUncertainty(self):
         """

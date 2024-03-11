@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
     P0 = np.zeros((3, 3))
     usk=np.array([[0.5, 0.03]]).T
-    # print("________BEFORE FEATURE________")
-    # print("x0:\n", x0)
-    # print("P0:\n", P0)
+    # #print("________BEFORE FEATURE________")
+    # #print("x0:\n", x0)
+    # #print("P0:\n", P0)
 
     f1 = M[0]
     f2 = M[1]
@@ -57,9 +57,9 @@ if __name__ == '__main__':
     f4 = M[3]
 
     x0 = np.block([[x0], [f1], [f2], [f3], [f4]])
-    # print("________AFTER FEATURE________")
+    # #print("________AFTER FEATURE________")
 
-    print("x0:\n", x0)
+    #print("x0:\n", x0)
     P0_right = np.zeros((auv.xB_dim, x0.shape[0] - auv.xB_dim))
     P0_hstack = np.block([P0, P0_right])
 
@@ -67,27 +67,27 @@ if __name__ == '__main__':
     P0_bottom = np.block([P0_left, np.eye(x0.shape[0] - auv.xB_dim)*0.03])#np.zeros((x0.shape[0] - auv.xB_dim, x0.shape[0] - auv.xB_dim))
 
     P0 = np.block([[P0_hstack], [P0_bottom]])
-    print("P0:\n", P0)
+    #print("P0:\n", P0)
         
-    # print("_________TEST AddNewFeatures_____________")
+    # #print("_________TEST AddNewFeatures_____________")
     # znp = np.array([f1, f2])
     # Rnp = np.zeros((4, 4))
     # xk_plus, Pk_plus = auv.AddNewFeatures(x0, P0, znp, Rnp)
-    # print("xk_plus: ", xk_plus)
-    # print("Pk_plus: ", Pk_plus)
+    # #print("xk_plus: ", xk_plus)
+    # #print("Pk_plus: ", Pk_plus)
 
 
     # uk, Qk = auv.GetInput()
-    # print("_______GetInput_________")
-    # print("uk:\n", uk)
-    # print("Qk:\n", Qk)
-    # print("________________")
+    # #print("_______GetInput_________")
+    # #print("uk:\n", uk)
+    # #print("Qk:\n", Qk)
+    # #print("________________")
     # uk, Qk = auv.GetInput()
 
     # x_bar, P_bar = auv.Prediction(uk, Qk, x0, P0)
-    # print("_______AFTER PREDICTION_________")
-    # print("x_bar shape: ", x_bar)
-    # print("P_bar shape: ", P_bar)
+    # #print("_______AFTER PREDICTION_________")
+    # #print("x_bar shape: ", x_bar)
+    # #print("P_bar shape: ", P_bar)
 
     auv.LocalizationLoop(x0, P0, usk)
 

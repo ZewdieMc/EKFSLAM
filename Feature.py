@@ -309,9 +309,9 @@ if __name__ == '__main__':
 
     NxF = BxF.boxplus(NxB3dof)
 
-    print("NxF=", NxF.T)
-    print("J_1boxplus=", BxF.J_1boxplus(NxB3dof))
-    print("J_2boxplus=", BxF.J_2boxplus(NxB3dof))
+    #print("NxF=", NxF.T)
+    #print("J_1boxplus=", BxF.J_1boxplus(NxB3dof))
+    #print("J_2boxplus=", BxF.J_2boxplus(NxB3dof))
 
     exit(0)
 

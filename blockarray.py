@@ -120,14 +120,14 @@ if __name__ == '__main__':
     my_array = BlockArray(arr.T,2)
 
     # Access and modify vector chunks of size 3 using my_array[1]
-    print(my_array[1])  # Output: [4, 5, 6]
+    #print(my_array[1])  # Output: [4, 5, 6]
 
-    print(my_array[[1]])  # Output: [[4, 5, 6], [7, 8, 9]]
+    #print(my_array[[1]])  # Output: [[4, 5, 6], [7, 8, 9]]
 
 
     v=BlockArray(np.array([[1,2,3,4,5,6],[21,22,23,24,25,26]]),2)
-    print(v[[0,1]])
+    #print(v[[0,1]])
 
     v[[0,1]]=np.array([[31,32],[41,42]])
-    print(v[[0,1]])
+    #print(v[[0,1]])
 

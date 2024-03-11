@@ -86,28 +86,30 @@ class FEKFSLAM(FEKFMBL):
         xk_plus = xk
         Pk_plus = Pk
 
-        print("znp len: ", len(znp))
-        for i in range(len(znp)):
-            NxFi = self.g(xk,znp[i])
+        #print("znp len: ", len(znp))
+        for i in range(0,len(znp), self.xF_dim):
+            print("znp[i]: ",znp[i:i + self.xF_dim].shape)
+            NxFi = self.g(xk,znp[i:i + self.xF_dim])
             xk_plus = np.block([[xk_plus], [NxFi]]) 
             self.nf += 1
 
-            Jgx = self.Jgx(xk,znp[i])
-            Jgv = self.Jgv(xk,znp[i])
+            Jgx = self.Jgx(xk,znp[i:i + self.xF_dim])
+            Jgv = self.Jgv(xk,znp[i:i + self.xF_dim])
 
             print("Jgx: ", Jgx.shape)
             print("Jgv: ", Jgv.shape)
             print("XB_DIM: ", self.xB_dim)
-            print("Pk: ", Pk.shape)
+            print("Pk: ", Pk_plus[:,:self.xB_dim].shape)
 
-            print("Pk: ", Pk[:,0:self.xB_dim].T)
-            NPBTF = Pk[:,0:self.xB_dim].T @ Jgx
-            NPBF = Jgx @ Pk[:,0:self.xB_dim]
-            JPJ_JRJ = (Jgx @ Pk[0:self.xB_dim,0:self.xB_dim] @ Jgx.T) + (Jgv @ Rnp[i:i+self.zfi_dim,i:+self.zfi_dim] @ Jgv.T)
+            NPBTF = Pk_plus[:,0:self.xB_dim] @ Jgx.T
+            print(NPBTF.shape)
+            NPBF = Jgx @ Pk_plus[0:self.xB_dim, :]
+            JPJ_JRJ = (Jgx @ Pk_plus[0:self.xB_dim,0:self.xB_dim] @ Jgx.T) + (Jgv @ Rnp[i:i+self.zfi_dim,i:i+self.zfi_dim] @ Jgv.T)
 
             top_ele  = np.block([Pk_plus, NPBTF])
             btm_ele = np.block([NPBF, JPJ_JRJ])
             Pk_plus = np.block([[top_ele], [btm_ele]])
+
         
         return xk_plus, Pk_plus
 
@@ -267,8 +269,9 @@ class FEKFSLAM(FEKFMBL):
     
         # Update step
         xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
-        # if len(znp) > 0: #! uncomment this
-        # xk, Pk = self.AddNewFeatures(xk, Pk, znp, Rnp)#! comment or uncomment this line to test w or w\ the AddNewFeatures
+        print("znp: ", znp)
+        if len(znp) > 0: #! uncomment this
+            xk, Pk = self.AddNewFeatures(xk, Pk, znp, Rnp)#! comment or uncomment this line to test w or w\ the AddNewFeatures
 
         self.xk_bar = xk_bar
         self.Pk_bar = Pk_bar

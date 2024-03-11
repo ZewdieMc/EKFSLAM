@@ -125,7 +125,6 @@ class GFLocalization(Localization,GaussianFilter):
             
             # plot the estimated trajectory
             self.PlotUncertainty(zk, Rk, znp, Rnp)
-
             # Add to save figure to write the report
             if self.k % 60 == 0:
                 name_fig = './Figures/Figure_' + str(self.k//60)
@@ -133,6 +132,7 @@ class GFLocalization(Localization,GaussianFilter):
                 time.sleep(0.2)
             
         self.PlotState()  # plot the state estimation results
+        
         plt.show()
 
     def Log(self, xsk, xk, Pk, xk_bar, zk):

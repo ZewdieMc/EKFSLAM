@@ -88,8 +88,8 @@ class FEKFSLAMFeature(MapFeature):
         jhfjx = np.zeros((2, len(xk)))
         jhfjx[0:2, 0:3] = Js2o @ J1boxplus @ Pose3D(NxB).J_ominus()
         jhfjx[0:2, 3+Fj:3+Fj+2] = Js2o @ J2boxplus
-        print("Jhfjx: ", jhfjx)
-        print("Fj: ", Fj)
+        #print("Jhfjx: ", jhfjx)
+        #print("Fj: ", Fj)
         return jhfjx
 
 class FEKFSLAM2DCartesianFeature(FEKFSLAMFeature, Cartesian2DMapFeature):

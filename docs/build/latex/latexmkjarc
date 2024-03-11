@@ -7,7 +7,7 @@ sub mendex {
   unlink($destination);
   system("mendex", "-U", "-f", "-d", $dictfile, "-s", "python.ist", $source);
   if ($? > 0) {
-    print("mendex exited with error code $? (ignored)\n");
+    #print("mendex exited with error code $? (ignored)\n");
   }
   if (!-e $destination) {
     # create an empty .ind file if nothing

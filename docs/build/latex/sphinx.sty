@@ -38,7 +38,7 @@
   \ifcsname sphinx_emitted_#1\endcsname
   \else
     \global\expandafter\let\csname sphinx_emitted_#1\endcsname\@empty
-    \AtEndDocument{\hbox{% should the printing of text be made conditional on
+    \AtEndDocument{\hbox{% should the #printing of text be made conditional on
                          % some boolean?
                          \bfseries\color{red}%
                          \@nameuse{sphinx_buildwarning_#1}%
@@ -974,7 +974,7 @@ will be set to white}%
 \renewcommand{\thesphinxscope}{\number\value{sphinxscope}}
 \newcommand\sphinxthefootnotemark[2]{%
    % this is used to make reference to an explicitly numbered footnote not on same page
-   % #1=label of footnote text, #2=page number where footnote text was printed
+   % #1=label of footnote text, #2=page number where footnote text was #printed
    \ifdefined\pagename
       \pagename\space#2, % <- space
     \else
