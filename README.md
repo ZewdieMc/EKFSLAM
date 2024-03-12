@@ -235,3 +235,66 @@ for j in range(len(zf)):
     Hp.append(nearest)
 return Hp
 ```
+---  
+**`Prediction(uk, Qk, xk_1, Pk_1)`**
+
+This method implements the prediction step of the FEKFSLAM algorithm. It predicts the state vector mean and covariance at the next time step. Given state vector mean and covariance at time step k-1:
+
+$$
+{}^Nx_{k-1} \approx \mathcal{N}({}^N\hat x_{k-1},{}^NP_{k-1})
+$$
+
+where
+
+$$
+{}^N\hat x_{k-1} = \left[ {}^N\hat x_{B_{k-1}}^T ~ {}^N\hat x_{F_1}^T ~ \cdots ~ {}^N\hat x_{F_{nf}}^T \right]^T
+$$
+
+and
+
+$$
+{}^NP_{k-1}=
+\begin{bmatrix}
+{}^NP_{B_{k-1}} & {}^NP_{BF_1} & \cdots & {}^NP_{BF_{nf}} \\
+{}^NP_{F_1B} & {}^NP_{F_1} & \cdots & {}^NP_{F_1F_{nf}} \\
+\vdots & \vdots & \ddots & \vdots \\
+{}^NP_{F_{nf}B} & {}^NP_{F_{nf}F_1} & \cdots & {}^NP_{nf} \\
+\end{bmatrix}
+$$
+
+Given the control input and its covariance $u_k$ and $Q_k$, the method computes the state vector mean and covariance at time step k:
+
+$$
+{}^N\hat{\bar x}_{k} = \left[ f \left( {}^N\hat{x}_{B_{k-1}}, u_{k} \right) ~ {}^N\hat x_{F_1}^T \cdots {}^N\hat x_{F_n}^T\right]^T
+$$
+
+and
+
+$$
+{}^N\bar P_{k} = F_{1_k} {}^NP_{k-1} F_{1_k}^T + F_{2_k} Q_{k} F_{2_k}^T
+$$
+
+where
+
+$$
+F_{1_k} = \left.\frac{\partial f_S({}^Nx_{k-1},u_k,w_k)}{\partial {}^Nx_{k-1}}\right|_{{}^Nx_{k-1}={}^N\hat x_{k-1}, w_k=0}
+$$
+
+and
+
+$$
+F_{2_k} = \left. \frac{\partial f({}^Nx_{k-1},u_k,w_k)}{\partial w_{k}} \right|_{{}^Nx_{k-1}={}^N\hat x_{k-1}, w_k=0}
+$$
+
+The method returns the predicted state vector mean (${}^N\hat{\bar x}_k$) and covariance (${}^N\bar P_{k}$).
+
+**Parameters:**
+
+- `uk`: Control input
+- `Qk`: Covariance of the Motion Model noise
+- `xk_1`: State vector mean at time step k-1
+- `Pk_1`: Covariance of the state vector at time step k-1
+
+**Returns:**
+
+- `[xk_bar, Pk_bar]`: predicted state vector mean and covariance at time step k
