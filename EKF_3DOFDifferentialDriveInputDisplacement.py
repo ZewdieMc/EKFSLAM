@@ -93,7 +93,8 @@ class EKF_3DOFDifferentialDriveInputDisplacement(GFLocalization, DR_3DOFDifferen
         zk, Rk  = self.robot.ReadCompass()
 
         # Compute H matrix
-        Hk      = np.array([0., 0., 1.]).reshape((1,3))
+        Hk      = np.zeros((1,self.nf*2+3))
+        Hk[0,2] = 1
         # Compute V matrix
         Vk      = np.diag([1.])
         # Raise flag got measurement

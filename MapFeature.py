@@ -285,7 +285,8 @@ class MapFeature:
         xBpose_dim = 3
         # Get Pose vector from the filter state
         NxB = xk[0:xBpose_dim,0].reshape((xBpose_dim,1))
-        
+        # print("BxFj: ", BxFj)
+        # print("Feature observation:", self.o2s(BxFj))
         NxFj = CartesianFeature((self.o2s(BxFj))).boxplus(NxB)
         return NxFj
 

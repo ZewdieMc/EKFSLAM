@@ -69,18 +69,18 @@ class DifferentialDriveSimulatedRobot(SimulatedRobot):
         self.encoder_reading_frequency = 1  # frequency of encoder readings
         self.Re= np.diag(np.array([22 ** 2, 22 ** 2]))  # covariance of simulated wheel encoder noise
 
-        self.Cartesian2D_feature_reading_frequency = 50 # frequency of Cartesian2D feature readings
+        self.Cartesian2D_feature_reading_frequency = 400 # frequency of Cartesian2D feature readings
         self.Cartesian2D_max_range = 50  # maximum Cartesian2D range, used to simulate the field of view
-        self.Rfc = np.diag(np.array([0.1 ** 2, 0.1** 2]))  # covariance of simulated Cartesian2D feature noise
+        self.Rfc = np.diag(np.array([0.5 ** 2, 0.2** 2]))  # covariance of simulated Cartesian2D feature noise
 
         self.Polar2D_feature_reading_frequency = 50  # frequency of Polar2D feature readings
         self.Polar2D_max_range = 50  # maximum Polar2D range, used to simulate the field of view
         self.Rfp = np.diag(np.array([0.5 ** 2, np.deg2rad(0.1) ** 2]))  # covariance of simulated Polar2D feature noise
         
-        self.xy_feature_reading_frequency = 50  # frequency of XY feature readings
+        self.xy_feature_reading_frequency = 10  # frequency of XY feature readings
         self.xy_max_range = 50  # maximum XY range, used to simulate the field of view
 
-        self.yaw_reading_frequency = 0 # frequency of Yasw readings
+        self.yaw_reading_frequency = 50 # frequency of Yasw readings
         self.v_yaw_std = np.deg2rad(1)  # std deviation of simulated heading noise
 
     def fs(self, xsk_1, usk):  # input velocity motion model with velocity noise
@@ -215,11 +215,16 @@ class DifferentialDriveSimulatedRobot(SimulatedRobot):
         Rsk = []
 
         # Number of feature loop
-        for i in range(0,self.nf):
-            noise = np.random.normal(0, np.sqrt(self.Rfc.diagonal())).reshape((len(self.Rfc),1))
-            zsk.append(Cartesian2DMapFeature().s2o(self.M[i].boxplus(Pose3D.ominus(self.xsk[0:3,0].reshape((3,1)))))+noise)
-            # Measurement noise
-            Rsk.append(self.Rfc)
+        for i in range(0,len(self.M)):
+            dist = np.linalg.norm(self.M[i] - self.xsk[0:2,0].reshape((2,1)))
+            print("dist: ", dist)
+            print("self.M[i]: ", self.M[i])
+            print("self.xsk[0:2,0]: ", self.xsk[0:2,0])
+            if dist < self.Cartesian2D_max_range:
+                noise = np.random.normal(0, np.sqrt(self.Rfc.diagonal())).reshape((len(self.Rfc),1))
+                zsk.append(Cartesian2DMapFeature().s2o(self.M[i].boxplus(Pose3D.ominus(self.xsk[0:3,0].reshape((3,1)))))+noise)
+                # Measurement noise
+                Rsk.append(self.Rfc)
 
         if self.Cartesian2D_feature_reading_frequency != 0 and self.k % self.Cartesian2D_feature_reading_frequency == 0:
             return zsk, Rsk

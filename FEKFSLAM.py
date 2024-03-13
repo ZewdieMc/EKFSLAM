@@ -88,10 +88,9 @@ class FEKFSLAM(FEKFMBL):
 
         #print("znp len: ", len(znp))
         for i in range(0,len(znp), self.xF_dim):
-            print("znp[i]: ",znp[i:i + self.xF_dim].shape)
+            print("znp[i]: ",znp[i:i + self.xF_dim])
             NxFi = self.g(xk,znp[i:i + self.xF_dim])
             xk_plus = np.block([[xk_plus], [NxFi]]) 
-            self.nf += 1
 
             Jgx = self.Jgx(xk,znp[i:i + self.xF_dim])
             Jgv = self.Jgv(xk,znp[i:i + self.xF_dim])
@@ -110,7 +109,7 @@ class FEKFSLAM(FEKFMBL):
             btm_ele = np.block([NPBF, JPJ_JRJ])
             Pk_plus = np.block([[top_ele], [btm_ele]])
 
-        
+        self.nf = int(len(xk_plus[self.xBpose_dim:]) / 2)
         return xk_plus, Pk_plus
 
     def Prediction(self, uk, Qk, xk_1, Pk_1):
@@ -266,10 +265,13 @@ class FEKFSLAM(FEKFMBL):
 
         # Stack measurements and features
         [zk, Rk, Hk, Vk, znp, Rnp] = self.StackMeasurementsAndFeatures(xk_bar, zm, Rm, Hm, Vm, zf, Rf, Hp)
-    
+        print("zk: ", zk.shape)
+        print("Rk: ", Rk.shape)
+        print("Hk: ", Hk.shape)
+        print("Vk: ", Vk.shape)
         # Update step
         xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
-        print("znp: ", znp)
+      
         if len(znp) > 0: #! uncomment this
             xk, Pk = self.AddNewFeatures(xk, Pk, znp, Rnp)#! comment or uncomment this line to test w or w\ the AddNewFeatures
 
@@ -282,8 +284,15 @@ class FEKFSLAM(FEKFMBL):
         #self.Log(self.robot.xsk, self._GetRobotPose(self.xk), self._GetRobotPoseCovariance(self.Pk),
          #       self._GetRobotPose(self.xk_bar), zm)  # log the results for plotting
         self.Log(self.robot.xsk, self.GetRobotPose(self.xk_bar), self.GetRobotPoseCovariance(self.Pk_bar), self.GetRobotPose(self.xk_bar), zm)  # log the results for plotting
-
-        self.PlotUncertainty(Feature(zf), Rf, znp, Rnp)
+        
+        # print("zff: ", zff.feature)
+        Rff = np.zeros((0,0))
+        zff = np.zeros((0,1))
+        for i in range(len(Rf)):
+            zff = np.block([[zff], [zf[i]]])
+            Rff = scipy.linalg.block_diag(Rff, Rf[i])
+            
+        self.PlotUncertainty(zff, Rff, znp, Rnp)
         # return self.xk, self.Pk
         return xk, Pk, xk_bar, zk, Rk, znp, Rnp
     def PlotMappedFeaturesUncertainty(self):
@@ -301,8 +310,10 @@ class FEKFSLAM(FEKFMBL):
 
         # draw new ellipses
         for Fj in range(self.nf):
+            print("Fj: ", Fj)
             feature_ellipse = GetEllipse(self.xk[[Fj]],
                                          self.Pk[[Fj,Fj]])  # get the ellipse of the feature (x_Fj,P_Fj)
+            print("xk[Fj]: ", self.xk[Fj])
             plt_ellipse, = plt.plot(feature_ellipse[0], feature_ellipse[1], 'r')  # plot it
             self.plt_MappedFeaturesEllipses.append(plt_ellipse)  # and add it to the list
 

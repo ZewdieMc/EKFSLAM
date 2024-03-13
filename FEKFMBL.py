@@ -271,6 +271,11 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
 
             Vk = scipy.linalg.block_diag(Vm, Vp)
 
+        print("Rk: ", Rk.shape) 
+        print("Hk: ", Hk.shape)
+        print("Vk: ", Vk.shape)
+        print("zk: ", zk.shape)   
+
         return zk, Rk, Hk, Vk, znp, Rnp
 
     def SplitFeatures(self, xk, zf, Rf, H):
@@ -288,29 +293,25 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         """
         # TODO: To be completed by the student
 
-        zp  = []
+        zp  = np.zeros((0,1))
+        Rp = np.zeros((0,0))
         znp = np.zeros((0,1))
         Rnp = np.zeros((0,0))
+        Hp = np.zeros((0,len(xk)))
+        print("Dim: ", len(xk[:self.xBpose_dim]))
+        Vp = np.zeros((0,0))
 
         if len(H) > 0:
-            for ii in range(0,len(H)):
-                if H[ii] != 0:
-                    zp = zf[ii]
-                    Rp = Rf[ii]
-                    Fj = (H[ii] - 1) * self.xF_dim
-                    print("Fj: {}".format(Fj))
-                    Hp = self.Jhfjx(xk, Fj)
-                    Vp = np.diag(np.ones(self.xF_dim))
-                    break
+            pass
         else:
             self.featureData = False
             return np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), znp, Rnp
         
-        if ii+1 == len(H):
-            self.featureData = False
-            return np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), znp, Rnp
+        # if ii+1 == len(H):
+        #     self.featureData = False
+        #     return np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), np.zeros((0,0)), znp, Rnp
         
-        for i in range(ii+1,len(H)):
+        for i in range(0,len(H)):
             j = H[i]
             if j != 0:
                 # Add feature measurement
@@ -319,6 +320,8 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                 Rp = scipy.linalg.block_diag(Rp, Rf[i])
                 Fj = (j - 1) * self.xF_dim
                 print("Fj: {}".format(Fj))
+                print("Jhfjx: ", self.Jhfjx(xk, Fj))
+                print("Hp: ", Hp)
                 Hp = np.block([[Hp], [self.Jhfjx(xk, Fj)]])
 
                 Vp = scipy.linalg.block_diag(Vp, np.diag(np.ones(self.xF_dim)))
@@ -326,11 +329,10 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                 # Add feature measurement
                 znp = np.block([[znp], [zf[i]]])
                 # Add noises measurement of the feature (Noise are independent)
-                Rnp = scipy.linalg.block_diag(Rp, Rf[i])
+                Rnp = scipy.linalg.block_diag(Rnp, Rf[i])
 
-
-        if len(zp) == 10:
-            a = 1
+        if zp.size == 0:
+            self.featureData = False
         return zp, Rp, Hp, Vp, znp, Rnp
     
     def PlotFeatureObservationUncertainty(self, zf, Rf, color):  # plots the feature observation uncertainty ellipse
@@ -340,10 +342,10 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         :param zf: vector of feature observations
         :param Rf: covariance matrix of the feature observations
         """
-
+        # print("zfplot: ", zf.feature)
         zf=BlockArray(zf,self.zfi_dim)
         Rf=BlockArray(Rf,self.zfi_dim)
-
+        print("zfblock: ", zf)
         if zf is not None:
             # Remove previous feature observation ellipses
             for i in range(len(self.plt_zf_ellipse)):
@@ -353,10 +355,12 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             self.plt_zf_line = []
 
         NxB = self.GetRobotPose(self.robot.xsk)
-
+        
         # For all feature observations
         nzf = 0 if zf is None else zf.size // self.zfi_dim
+        print("nzf: ", zf.size)
         for i in range(0, nzf):
+            print("zfi: ", zf[i])
             BxF = self.Feature(zf[[i]])  # feature observation in the B-Frame
             BRF = Rf[[i,i]]  # feature observation covariance in the B-Frame
             NxF = self.Feature(self.g(NxB, BxF))

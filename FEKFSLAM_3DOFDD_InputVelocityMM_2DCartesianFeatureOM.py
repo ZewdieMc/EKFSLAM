@@ -30,7 +30,7 @@ if __name__ == '__main__':
            CartesianFeature(np.array([[40,-40]]).T)]  # feature map. Position of 2 point features in the world frame.
 
     xs0 = np.zeros((6, 1))
-    kSteps = 2000
+    kSteps = 5000
     alpha = 0.99
 
     index = [IndexStruct("x", 0, None), IndexStruct("y", 1, None), IndexStruct("yaw", 2, 1)]
@@ -51,30 +51,37 @@ if __name__ == '__main__':
     # #print("x0:\n", x0)
     # #print("P0:\n", P0)
 
-    f1 = M[0]
-    f2 = M[1]
-    f3 = M[2]
-    f4 = M[3]
+    # f1 = M[0]
+    # f2 = M[1]
+    # f3 = M[2]
+    # f4 = M[3]
 
-    x0 = np.block([[x0], [f1], [f2], [f3], [f4]])
+    # x0 = np.block([[x0], [f1], [f2], [f3], [f4]])
     # #print("________AFTER FEATURE________")
 
-    #print("x0:\n", x0)
-    P0_right = np.zeros((auv.xB_dim, x0.shape[0] - auv.xB_dim))
-    P0_hstack = np.block([P0, P0_right])
+    # #print("x0:\n", x0)
+    # P0_right = np.zeros((auv.xB_dim, x0.shape[0] - auv.xB_dim))
+    # P0_hstack = np.block([P0, P0_right])
 
-    P0_left = np.zeros((x0.shape[0]-auv.xB_dim, auv.xB_dim))
-    P0_bottom = np.block([P0_left, np.eye(x0.shape[0] - auv.xB_dim)*0.03])#np.zeros((x0.shape[0] - auv.xB_dim, x0.shape[0] - auv.xB_dim))
+    # P0_left = np.zeros((x0.shape[0]-auv.xB_dim, auv.xB_dim))
+    # P0_bottom = np.block([P0_left, np.eye(x0.shape[0] - auv.xB_dim)*0.03])#np.zeros((x0.shape[0] - auv.xB_dim, x0.shape[0] - auv.xB_dim))
 
-    P0 = np.block([[P0_hstack], [P0_bottom]])
+    # P0 = np.block([[P0_hstack], [P0_bottom]])
     #print("P0:\n", P0)
         
     # #print("_________TEST AddNewFeatures_____________")
     # znp = np.array([f1, f2])
     # Rnp = np.zeros((4, 4))
-    # xk_plus, Pk_plus = auv.AddNewFeatures(x0, P0, znp, Rnp)
-    # #print("xk_plus: ", xk_plus)
-    # #print("Pk_plus: ", Pk_plus)
+    zf, Rf, Hf, Vf = auv.GetFeatures()
+    print("zf: ", zf)
+    H= auv.DataAssociation(x0, P0, zf, Rf)
+
+    zk, Rk, Hk, Vk, znp, Rnp = auv.StackMeasurementsAndFeatures(x0, [], [], [], [], zf, Rf, H)
+    print("Rnp",Rnp.shape)
+    xk_plus, Pk_plus = auv.AddNewFeatures(x0, P0, znp, Rnp)
+    print()
+    #print("xk_plus: ", xk_plus)
+    #print("Pk_plus: ", Pk_plus)
 
 
     # uk, Qk = auv.GetInput()
@@ -89,6 +96,6 @@ if __name__ == '__main__':
     # #print("x_bar shape: ", x_bar)
     # #print("P_bar shape: ", P_bar)
 
-    auv.LocalizationLoop(x0, P0, usk)
+    auv.LocalizationLoop(xk_plus, Pk_plus, usk)
 
     exit(0)
