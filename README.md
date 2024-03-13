@@ -42,11 +42,8 @@ observation contained in the observation vector $z_f=[z_{f_1}^T~\cdots~z_{f_i}^T
         ## To be completed by the student
         NxB = xk_bar[0:3].reshape(3,1)
         NxFj = xk_bar[3+2*Fj:3+2*Fj+2]
-        #print("xbar: ", xk_bar)
-        #print("Index", 3+2*Fj, ":", 3+2*Fj+2)
         NxFj = CartesianFeature(NxFj.reshape(2,1))
         NxB_inv = Pose3D(NxB).ominus()
-        #print(NxFj.shape)
         zFi = self.s2o(NxFj.boxplus(NxB_inv))
         return zFi
 ```
@@ -114,7 +111,6 @@ $$
 
         jhfjx = np.zeros((2, len(xk)))
         jhfjx[0:2, 0:3] = Js2o @ J1boxplus @ NxB_inv.J_ominus()
-        #print("index: ", 3+2*Fj)
         jhfjx[0:2, 3+2*Fj:3+2*Fj+2] = Js2o @ J2boxplus
 
         return jhfjx
@@ -298,3 +294,8 @@ The method returns the predicted state vector mean (${}^N\hat{\bar x}_k$) and co
 **Returns:**
 
 - `[xk_bar, Pk_bar]`: predicted state vector mean and covariance at time step k
+
+### Things to include in the report:
+<font color="red">
+- Add different values for `yaw_reading_frequency` and `Cartesian2D_feature_reading_frequency` and observe the change in the robot's trajectory and the feature map, and the uncertainty. and feature duplications. Use different combination of measurements (with and without compass).
+  </font>

@@ -69,15 +69,12 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             hm = self.hm(xk)
         else:
             hm = np.zeros((0,1))
-        #print("H in h: ", self.H)
         # Get features
         if self.featureData == True:
             index_mapping = []
             for i in range(len(self.H)):
-                #print("self.H[i]: ", self.H[i])
                 if self.H[i] != 0:
                     index_mapping.append((self.H[i]-1)*self.xF_dim)
-            #print("index_mapping: ", index_mapping)
             hf = self.hf(xk, index_mapping)
             
         else:
@@ -87,8 +84,8 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         h_mf = np.block([[hm], [hf]])
         if len(h_mf) == 10:
             a = 1
-        print("h_mf: ", h_mf)
-        print("xk: ",xk)
+        # print("h_mf: ", h_mf)
+        # print("xk: ",xk)
         return h_mf
 
     def hm(self,xk):
@@ -162,7 +159,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                     D2_min = D2_ij
             Hp.append(nearest)
 
-        print(Hp)
+        # print(Hp)
         return Hp
 
     def DataAssociation(self, xk, Pk, zf, Rf):
@@ -199,7 +196,6 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
             PF.append(PF_i)
         H = self.ICNN(hF, PF, zf, Rf)
         self.H = H
-        #print("H: in data assocication ", H)
         return H
     
     def Localize(self, xk_1, Pk_1):
@@ -271,10 +267,10 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
 
             Vk = scipy.linalg.block_diag(Vm, Vp)
 
-        print("Rk: ", Rk.shape) 
-        print("Hk: ", Hk.shape)
-        print("Vk: ", Vk.shape)
-        print("zk: ", zk.shape)   
+        # print("Rk: ", Rk.shape) 
+        # print("Hk: ", Hk.shape)
+        # print("Vk: ", Vk.shape)
+        # print("zk: ", zk.shape)   
 
         return zk, Rk, Hk, Vk, znp, Rnp
 
@@ -298,7 +294,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         znp = np.zeros((0,1))
         Rnp = np.zeros((0,0))
         Hp = np.zeros((0,len(xk)))
-        print("Dim: ", len(xk[:self.xBpose_dim]))
+        # print("Dim: ", len(xk[:self.xBpose_dim]))
         Vp = np.zeros((0,0))
 
         if len(H) > 0:
@@ -319,9 +315,9 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                 # Add noises measurement of the feature (Noise are independent)
                 Rp = scipy.linalg.block_diag(Rp, Rf[i])
                 Fj = (j - 1) * self.xF_dim
-                print("Fj: {}".format(Fj))
-                print("Jhfjx: ", self.Jhfjx(xk, Fj))
-                print("Hp: ", Hp)
+                # print("Fj: {}".format(Fj))
+                # print("Jhfjx: ", self.Jhfjx(xk, Fj))
+                # print("Hp: ", Hp)
                 Hp = np.block([[Hp], [self.Jhfjx(xk, Fj)]])
 
                 Vp = scipy.linalg.block_diag(Vp, np.diag(np.ones(self.xF_dim)))
@@ -345,7 +341,7 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         # print("zfplot: ", zf.feature)
         zf=BlockArray(zf,self.zfi_dim)
         Rf=BlockArray(Rf,self.zfi_dim)
-        print("zfblock: ", zf)
+        # print("zfblock: ", zf)
         if zf is not None:
             # Remove previous feature observation ellipses
             for i in range(len(self.plt_zf_ellipse)):
@@ -358,9 +354,9 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
         
         # For all feature observations
         nzf = 0 if zf is None else zf.size // self.zfi_dim
-        print("nzf: ", zf.size)
+        # print("nzf: ", zf.size)
         for i in range(0, nzf):
-            print("zfi: ", zf[i])
+            # print("zfi: ", zf[i])
             BxF = self.Feature(zf[[i]])  # feature observation in the B-Frame
             BRF = Rf[[i,i]]  # feature observation covariance in the B-Frame
             NxF = self.Feature(self.g(NxB, BxF))
@@ -374,7 +370,6 @@ class FEKFMBL(GFLocalization,EKF, MapFeature):
                                  [self.robot.xsk[1], NxF_Plot[1]], color+'-.')
             self.plt_zf_ellipse.append(plt_ellipse)
             self.plt_zf_line.append(plt_line)
-            #for j in range(len(self.M)): #print("M[",j,"]=", self.M[j].ToCartesian().T)
 
     def PlotExpectedFeaturesObservationsUncertainty(self):
         """

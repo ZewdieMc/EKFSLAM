@@ -86,22 +86,21 @@ class FEKFSLAM(FEKFMBL):
         xk_plus = xk
         Pk_plus = Pk
 
-        #print("znp len: ", len(znp))
         for i in range(0,len(znp), self.xF_dim):
-            print("znp[i]: ",znp[i:i + self.xF_dim])
+            # print("znp[i]: ",znp[i:i + self.xF_dim])
             NxFi = self.g(xk,znp[i:i + self.xF_dim])
             xk_plus = np.block([[xk_plus], [NxFi]]) 
 
             Jgx = self.Jgx(xk,znp[i:i + self.xF_dim])
             Jgv = self.Jgv(xk,znp[i:i + self.xF_dim])
 
-            print("Jgx: ", Jgx.shape)
-            print("Jgv: ", Jgv.shape)
-            print("XB_DIM: ", self.xB_dim)
-            print("Pk: ", Pk_plus[:,:self.xB_dim].shape)
+            # print("Jgx: ", Jgx.shape)
+            # print("Jgv: ", Jgv.shape)
+            # print("XB_DIM: ", self.xB_dim)
+            # print("Pk: ", Pk_plus[:,:self.xB_dim].shape)
 
             NPBTF = Pk_plus[:,0:self.xB_dim] @ Jgx.T
-            print(NPBTF.shape)
+            # print(NPBTF.shape)
             NPBF = Jgx @ Pk_plus[0:self.xB_dim, :]
             JPJ_JRJ = (Jgx @ Pk_plus[0:self.xB_dim,0:self.xB_dim] @ Jgx.T) + (Jgv @ Rnp[i:i+self.zfi_dim,i:i+self.zfi_dim] @ Jgv.T)
 
@@ -265,10 +264,10 @@ class FEKFSLAM(FEKFMBL):
 
         # Stack measurements and features
         [zk, Rk, Hk, Vk, znp, Rnp] = self.StackMeasurementsAndFeatures(xk_bar, zm, Rm, Hm, Vm, zf, Rf, Hp)
-        print("zk: ", zk.shape)
-        print("Rk: ", Rk.shape)
-        print("Hk: ", Hk.shape)
-        print("Vk: ", Vk.shape)
+        # print("zk: ", zk.shape)
+        # print("Rk: ", Rk.shape)
+        # print("Hk: ", Hk.shape)
+        # print("Vk: ", Vk.shape)
         # Update step
         xk, Pk = self.Update(zk, Rk, xk_bar, Pk_bar, Hk, Vk)
       
@@ -310,10 +309,10 @@ class FEKFSLAM(FEKFMBL):
 
         # draw new ellipses
         for Fj in range(self.nf):
-            print("Fj: ", Fj)
+            # print("Fj: ", Fj)
             feature_ellipse = GetEllipse(self.xk[[Fj]],
                                          self.Pk[[Fj,Fj]])  # get the ellipse of the feature (x_Fj,P_Fj)
-            print("xk[Fj]: ", self.xk[Fj])
+            # print("xk[Fj]: ", self.xk[Fj])
             plt_ellipse, = plt.plot(feature_ellipse[0], feature_ellipse[1], 'r')  # plot it
             self.plt_MappedFeaturesEllipses.append(plt_ellipse)  # and add it to the list
 
