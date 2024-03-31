@@ -1,5 +1,5 @@
 
-##class FEKFSLAMFeature(MapFeature): 
+## class FEKFSLAMFeature(MapFeature): 
 ---
 This class extends the `MapFeature` class to implement the Feature EKF SLAM algorithm.
 The `MapFeature` class is a base class providing support to localize the robot using a map of point features.
