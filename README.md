@@ -296,6 +296,4 @@ The method returns the predicted state vector mean (${}^N\hat{\bar x}_k$) and co
 - `[xk_bar, Pk_bar]`: predicted state vector mean and covariance at time step k
 
 ### Things to include in the report:
-<font color="red">
 - Add different values for `yaw_reading_frequency` and `Cartesian2D_feature_reading_frequency` and observe the change in the robot's trajectory and the feature map, and the uncertainty. and feature duplications. Use different combination of measurements (with and without compass).
-  </font>
